@@ -22,7 +22,7 @@ d = datetime.timedelta(days = 180)
 start = today - d
 
 
-# set seed, so we can get the same results after rerunning several times
+# set seed
 np.random.seed(314)
 tf.random.set_seed(314)
 random.seed(314)
@@ -40,20 +40,20 @@ def load_data(ticker, n_steps=70, scale=True, shuffle=True, lookup_step=1,
         test_size (float): ratio for test data, default is 0.2 (20% testing data)
         feature_columns (list): the list of features to use to feed into the model, default is everything grabbed from yahoo_fin
     """
-    # see if ticker is already a loaded stock from yahoo finance
+    
     if isinstance(ticker, str):
         # load it from yahoo_fin library
         df = si.get_data(ticker)
     elif isinstance(ticker, pd.DataFrame):
-        # already loaded, use it directly
+        
         df = ticker
     else:
         raise TypeError("ticker can be either a str or a `pd.DataFrame` instances")
-    # this will contain all the elements we want to return from this function
+    
     result = {}
-    # we will also return the original dataframe itself
+    
     result['df'] = df.copy()
-    # make sure that the passed feature_columns exist in the dataframe
+    
     for col in feature_columns:
         assert col in df.columns, f"'{col}' does not exist in the dataframe."
     if scale:
@@ -199,8 +199,8 @@ mse, mae = model.evaluate(data["X_test"], data["y_test"], verbose=0)
 mean_absolute_error = data["column_scaler"]["adjclose"].inverse_transform([[mae]])[0][0]
 print("Mean Absolute Error:", mean_absolute_error)
 
-######################PATH
 
+# path where to save file
 
 a = str(round(mean_absolute_error, 2))
 
