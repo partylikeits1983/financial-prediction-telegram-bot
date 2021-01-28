@@ -1,6 +1,5 @@
 import pandas as pd
-from pandas_datareader import data, wb  # Package and modules for importing data; this code may change depending on pandas version
-import matplotlib.pyplot as plt   
+from pandas_datareader import data, wb  
     
 import datetime
 from datetime import date 
