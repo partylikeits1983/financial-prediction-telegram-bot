@@ -14,12 +14,11 @@ You will need a dedicated vm or computer to run this telegram bot, ideally with 
 
 ## Screenshots:
 
+| | | |
+|:-------------------------:|:-------------------------:|
 
-:-------------------------:|:-------------------------:
-![](screenshot1.png)  |  ![](screenshot2.png)
-
-:-------------------------:|:-------------------------:
-![](screenshot3.png)  |  ![](screenshot4.png)
+|![](screenshot1.png)  |  ![](screenshot2.png)|
+|![](screenshot3.png)  |  ![](screenshot4.png)|
 
 
 To run, install all dependencies then execute:
