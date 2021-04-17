@@ -14,12 +14,10 @@ You will need a dedicated vm or computer to run this telegram bot, ideally with 
 
 ## Screenshots:
 
-Solarized dark             |  Solarized Ocean
+
 :-------------------------:|:-------------------------:
 ![](screenshot1.png)  |  ![](screenshot2.png)
 
-
-Solarized dark             |  Solarized Ocean
 :-------------------------:|:-------------------------:
 ![](screenshot3.png)  |  ![](screenshot4.png)
 
