@@ -20,7 +20,7 @@ You will need a dedicated vm or computer to run this telegram bot, ideally with 
 |![](screenshot3.png)|![](screenshot4.png)|
 
 
-#### Installation
+### Installation:
 
 To run, install all dependencies then execute:
 
