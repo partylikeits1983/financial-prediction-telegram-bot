@@ -22,7 +22,7 @@ You will need a dedicated vm or computer to run this telegram bot, ideally with 
 
 ### Installation:
 
-To run, install all dependencies then execute:
+To run, install all dependencies, change paths in python files for your machine, then execute:
 
 ```sh
 python3 main.py
