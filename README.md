@@ -1,5 +1,5 @@
 # Financial Prediction Telegram Bot
-#### a bot that uses tensorflow and arima models to give you updates on stocks 
+#### a bot that uses tensorflow and facebook prophet arima models to give you updates on stocks 
 
 ## Features
 - quickly see ML predictions for cryptos and stocks
