@@ -11,7 +11,7 @@ end = date.today()
 d = datetime.timedelta(days=365)
 start = end - d
     
-graph = data.DataReader("BTC-USD", "yahoo", start, end)
+graph = data.DataReader("PYPL", "yahoo", start, end)
  
 type(graph)
 
@@ -41,10 +41,9 @@ future.tail()
 forecast = m0.predict(future)
 forecast[['ds','yhat','yhat_lower','yhat_upper']].tail()
 forcast = m0.plot(forecast, ylabel='$\ln($stock_return$)$');
-forcast.savefig('/home/ubuntu/Desktop/TelegramBot/charts/BTCforcast.jpeg', dpi=400, bbox_inches='tight')
+forcast.savefig('/home/ubuntu/Desktop/TelegramBot/charts/PYPLforcast.jpeg', dpi=400, bbox_inches='tight')
 
-forecast.to_csv('/home/ubuntu/Desktop/PredictOutput.csv')
 
 trend = m0.plot_components(forecast);
-trend.savefig('/home/ubuntu/Desktop/TelegramBot/charts/BTCtrend.jpeg', dpi=400, bbox_inches='tight')
+trend.savefig('/home/ubuntu/Desktop/TelegramBot/charts/PYPLtrend.jpeg', dpi=400, bbox_inches='tight')
 
