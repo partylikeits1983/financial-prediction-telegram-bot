@@ -19,11 +19,10 @@ Solarized dark             |  Solarized Ocean
 ![](screenshot1.png)  |  ![](screenshot2.png)
 
 
-![](screenshot1.png?raw=true)
+Solarized dark             |  Solarized Ocean
+:-------------------------:|:-------------------------:
+![](screenshot3.png)  |  ![](screenshot4.png)
 
-![](screenshot2.png.png?raw=true)
-
-![](screenshot3.png.png?raw=true)
 
 To run, install all dependencies then execute:
 
