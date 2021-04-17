@@ -157,20 +157,20 @@ OPTIMIZER = "adam"
 BATCH_SIZE = 64
 EPOCHS = 60
 # Ticker
-ticker = "BTC-USD"
-ticker_data_filename = os.path.join("/home/ubuntu/Desktop/TelegramBot/tensorflow/tensorflowdata/dataBTC", f"{ticker}_{date_now}.csv")
+ticker = "ETH-USD"
+ticker_data_filename = os.path.join("/home/ubuntu/Desktop/TelegramBot/tensorflow/tensorflowdata/dataETH", f"{ticker}_{date_now}.csv")
 # model name to save, making it as unique as possible based on parameters
 model_name = f"{date_now}_{ticker}-{LOSS}-{OPTIMIZER}-{CELL.__name__}-seq-{N_STEPS}-step-{LOOKUP_STEP}-layers-{N_LAYERS}-units-{UNITS}"
 if BIDIRECTIONAL:
     model_name += "-b"
 
     # create these folders if they does not exist
-if not os.path.isdir("/home/ubuntu/Desktop/TelegramBot/tensorflow/tensorflowdata/resultsBTC"):
-    os.mkdir("/home/ubuntu/Desktop/TelegramBot/tensorflow/tensorflowdata/resultsBTC")
-if not os.path.isdir("/home/ubuntu/Desktop/TelegramBot/tensorflow/tensorflowdata/logsBTC"):
-    os.mkdir("/home/ubuntu/Desktop/TelegramBot/tensorflow/tensorflowdata/logsBTC")
-if not os.path.isdir("/home/ubuntu/Desktop/TelegramBot/tensorflow/tensorflowdata/dataBTC"):
-    os.mkdir("/home/ubuntu/Desktop/TelegramBot/tensorflow/tensorflowdata/dataBTC")
+if not os.path.isdir("/home/ubuntu/Desktop/TelegramBot/tensorflow/tensorflowdata/resultsETH"):
+    os.mkdir("/home/ubuntu/Desktop/TelegramBot/tensorflow/tensorflowdata/resultsETH")
+if not os.path.isdir("/home/ubuntu/Desktop/TelegramBot/tensorflow/tensorflowdata/logsETH"):
+    os.mkdir("/home/ubuntu/Desktop/TelegramBot/tensorflow/tensorflowdata/logsETH")
+if not os.path.isdir("/home/ubuntu/Desktop/TelegramBot/tensorflow/tensorflowdata/dataETH"):
+    os.mkdir("/home/ubuntu/Desktop/TelegramBot/tensorflow/tensorflowdata/dataETH")
 
 # load the data
 data = load_data(ticker, N_STEPS, lookup_step=LOOKUP_STEP, test_size=TEST_SIZE, feature_columns=FEATURE_COLUMNS)
@@ -180,15 +180,15 @@ data["df"].to_csv(ticker_data_filename)
 model = create_model(N_STEPS, loss=LOSS, units=UNITS, cell=CELL, n_layers=N_LAYERS,
                     dropout=DROPOUT, optimizer=OPTIMIZER, bidirectional=BIDIRECTIONAL)
 # some tensorflow callbacks
-checkpointer = ModelCheckpoint(os.path.join("/home/ubuntu/Desktop/TelegramBot/tensorflow/tensorflowdata/resultsBTC", model_name + ".h5"), save_weights_only=True, save_best_only=True, verbose=1)
-tensorboard = TensorBoard(log_dir=os.path.join("/home/ubuntu/Desktop/TelegramBot/tensorflow/tensorflowdata/logsBTC", model_name))
+checkpointer = ModelCheckpoint(os.path.join("/home/ubuntu/Desktop/TelegramBot/tensorflow/tensorflowdata/resultsETH", model_name + ".h5"), save_weights_only=True, save_best_only=True, verbose=1)
+tensorboard = TensorBoard(log_dir=os.path.join("/home/ubuntu/Desktop/TelegramBot/tensorflow/tensorflowdata/logsETH", model_name))
 history = model.fit(data["X_train"], data["y_train"],
                     batch_size=BATCH_SIZE,
                     epochs=EPOCHS,
                     validation_data=(data["X_test"], data["y_test"]),
                     callbacks=[checkpointer, tensorboard],
                     verbose=1)
-model.save(os.path.join("/home/ubuntu/Desktop/TelegramBot/tensorflow/tensorflowdata/resultsBTC", model_name) + ".h5")
+model.save(os.path.join("/home/ubuntu/Desktop/TelegramBot/tensorflow/tensorflowdata/resultsETH", model_name) + ".h5")
 
 data = load_data(ticker, N_STEPS, lookup_step=LOOKUP_STEP, test_size=TEST_SIZE,
                 feature_columns=FEATURE_COLUMNS, shuffle=False)
@@ -206,7 +206,7 @@ a = str(round(mean_absolute_error, 2))
 
 b = "{}".format(a)
 
-file = open('/home/ubuntu/Desktop/TelegramBot/predictions/meanabsoluteerrorBTC.txt', 'w')
+file = open('/home/ubuntu/Desktop/TelegramBot/predictions/meanabsoluteerrorETH.txt', 'w')
 file.write(b)
 file.close()
 
@@ -233,6 +233,6 @@ c = str(round(future_price, 2))
 
 d = "{}".format(c)
 
-file = open('/home/ubuntu/Desktop/TelegramBot/predictions/futurepriceBTC.txt', 'w')
+file = open('/home/ubuntu/Desktop/TelegramBot/predictions/futurepriceETH.txt', 'w')
 file.write(d)
 file.close()

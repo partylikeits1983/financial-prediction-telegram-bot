@@ -129,9 +129,9 @@ def create_model(sequence_length, units=256, cell=LSTM, n_layers=2, dropout=0.3,
     return model
 
 # Window size or the sequence length
-N_STEPS = 1000
+N_STEPS = 1850
 # Lookup step, 1 is the next day
-LOOKUP_STEP = 1
+LOOKUP_STEP = 7
 # test ratio size, 0.2 is 20%
 TEST_SIZE = 0.2
 # features to use
@@ -155,22 +155,22 @@ BIDIRECTIONAL = False
 LOSS = "huber_loss"
 OPTIMIZER = "adam"
 BATCH_SIZE = 64
-EPOCHS = 60
+EPOCHS = 2
 # Ticker
-ticker = "BTC-USD"
-ticker_data_filename = os.path.join("/home/ubuntu/Desktop/TelegramBot/tensorflow/tensorflowdata/dataBTC", f"{ticker}_{date_now}.csv")
+ticker = "EURUSD=X"
+ticker_data_filename = os.path.join("/home/ubuntu/Desktop/TelegramBot/tensorflow/tensorflowdata/dataEUR", f"{ticker}_{date_now}.csv")
 # model name to save, making it as unique as possible based on parameters
 model_name = f"{date_now}_{ticker}-{LOSS}-{OPTIMIZER}-{CELL.__name__}-seq-{N_STEPS}-step-{LOOKUP_STEP}-layers-{N_LAYERS}-units-{UNITS}"
 if BIDIRECTIONAL:
     model_name += "-b"
 
     # create these folders if they does not exist
-if not os.path.isdir("/home/ubuntu/Desktop/TelegramBot/tensorflow/tensorflowdata/resultsBTC"):
-    os.mkdir("/home/ubuntu/Desktop/TelegramBot/tensorflow/tensorflowdata/resultsBTC")
-if not os.path.isdir("/home/ubuntu/Desktop/TelegramBot/tensorflow/tensorflowdata/logsBTC"):
-    os.mkdir("/home/ubuntu/Desktop/TelegramBot/tensorflow/tensorflowdata/logsBTC")
-if not os.path.isdir("/home/ubuntu/Desktop/TelegramBot/tensorflow/tensorflowdata/dataBTC"):
-    os.mkdir("/home/ubuntu/Desktop/TelegramBot/tensorflow/tensorflowdata/dataBTC")
+if not os.path.isdir("/home/ubuntu/Desktop/TelegramBot/tensorflow/tensorflowdata/resultsEUR"):
+    os.mkdir("/home/ubuntu/Desktop/TelegramBot/tensorflow/tensorflowdata/resultsEUR")
+if not os.path.isdir("/home/ubuntu/Desktop/TelegramBot/tensorflow/tensorflowdata/logsEUR"):
+    os.mkdir("/home/ubuntu/Desktop/TelegramBot/tensorflow/tensorflowdata/logsEUR")
+if not os.path.isdir("/home/ubuntu/Desktop/TelegramBot/tensorflow/tensorflowdata/dataEUR"):
+    os.mkdir("/home/ubuntu/Desktop/TelegramBot/tensorflow/tensorflowdata/dataEUR")
 
 # load the data
 data = load_data(ticker, N_STEPS, lookup_step=LOOKUP_STEP, test_size=TEST_SIZE, feature_columns=FEATURE_COLUMNS)
@@ -180,15 +180,15 @@ data["df"].to_csv(ticker_data_filename)
 model = create_model(N_STEPS, loss=LOSS, units=UNITS, cell=CELL, n_layers=N_LAYERS,
                     dropout=DROPOUT, optimizer=OPTIMIZER, bidirectional=BIDIRECTIONAL)
 # some tensorflow callbacks
-checkpointer = ModelCheckpoint(os.path.join("/home/ubuntu/Desktop/TelegramBot/tensorflow/tensorflowdata/resultsBTC", model_name + ".h5"), save_weights_only=True, save_best_only=True, verbose=1)
-tensorboard = TensorBoard(log_dir=os.path.join("/home/ubuntu/Desktop/TelegramBot/tensorflow/tensorflowdata/logsBTC", model_name))
+checkpointer = ModelCheckpoint(os.path.join("/home/ubuntu/Desktop/TelegramBot/tensorflow/tensorflowdata/resultsEUR", model_name + ".h5"), save_weights_only=True, save_best_only=True, verbose=1)
+tensorboard = TensorBoard(log_dir=os.path.join("/home/ubuntu/Desktop/TelegramBot/tensorflow/tensorflowdata/logsEUR", model_name))
 history = model.fit(data["X_train"], data["y_train"],
                     batch_size=BATCH_SIZE,
                     epochs=EPOCHS,
                     validation_data=(data["X_test"], data["y_test"]),
                     callbacks=[checkpointer, tensorboard],
                     verbose=1)
-model.save(os.path.join("/home/ubuntu/Desktop/TelegramBot/tensorflow/tensorflowdata/resultsBTC", model_name) + ".h5")
+model.save(os.path.join("/home/ubuntu/Desktop/TelegramBot/tensorflow/tensorflowdata/resultsEUR", model_name) + ".h5")
 
 data = load_data(ticker, N_STEPS, lookup_step=LOOKUP_STEP, test_size=TEST_SIZE,
                 feature_columns=FEATURE_COLUMNS, shuffle=False)
@@ -206,7 +206,7 @@ a = str(round(mean_absolute_error, 2))
 
 b = "{}".format(a)
 
-file = open('/home/ubuntu/Desktop/TelegramBot/predictions/meanabsoluteerrorBTC.txt', 'w')
+file = open('/home/ubuntu/Desktop/TelegramBot/predictions/meanabsoluteerrorEUR.txt', 'w')
 file.write(b)
 file.close()
 
@@ -233,6 +233,6 @@ c = str(round(future_price, 2))
 
 d = "{}".format(c)
 
-file = open('/home/ubuntu/Desktop/TelegramBot/predictions/futurepriceBTC.txt', 'w')
+file = open('/home/ubuntu/Desktop/TelegramBot/predictions/futurepriceEUR.txt', 'w')
 file.write(d)
 file.close()
