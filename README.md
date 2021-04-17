@@ -1,5 +1,3 @@
-# financial-forecast-telegram-bot
-
 # Financial Prediction Telegram Bot
 #### a bot that uses tensorflow and arima models to give you updates on stocks 
 
