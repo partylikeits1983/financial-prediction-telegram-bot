@@ -16,7 +16,7 @@ You will need a dedicated vm or computer to run this telegram bot, ideally with 
 
 | | | 
 |:-------------------------:|:-------------------------:|
-|![](screenshot1.png)|![](screenshot2.png)|
+|![](screenshots/screenshot1.png)|![](screenshot2.png)|
 |![](screenshot3.png)|![](screenshot4.png)|
 
 
