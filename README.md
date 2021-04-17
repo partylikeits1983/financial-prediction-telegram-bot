@@ -16,8 +16,8 @@ You will need a dedicated vm or computer to run this telegram bot, ideally with 
 
 | | | 
 |:-------------------------:|:-------------------------:|
-|![](screenshots/screenshot1.png)|![](screenshot2.png)|
-|![](screenshot3.png)|![](screenshot4.png)|
+|![](screenshots/screenshot1.png)|![](screenshots/screenshot2.png)|
+|![](screenshots/screenshot3.png)|![](screenshots/screenshot4.png)|
 
 
 ### Installation:
