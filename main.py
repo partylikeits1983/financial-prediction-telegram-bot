@@ -14,32 +14,41 @@ from yahoo_fin import stock_info as si
 import csv
 
 import telegram
-from telegram import Update
-from telegram.ext import Updater, CommandHandler, CallbackContext
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, ReplyKeyboardMarkup
+from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, CallbackContext
+
 
 import logging
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
 
-TOKEN = 'token'
+TOKEN = 'TOKEN'
 
 today = date.today()
 
 bot = telegram.Bot(TOKEN)
 
 
+
 def start(update: Update, context: CallbackContext) -> None:
-    update.message.reply_text('Hello! Welcome to the Financial Forecast and Price Prediction Telegram bot!'
-                              ' This bot gives daily price correlations and future price predictions of'
-                              ' Bitcoin, Ether, Monero, USD/EUR, USD/RUB, PYPL, TSLA, SP500, and the Russel 2000!')
 
     context.bot.sendChatAction(chat_id=update.message.chat_id, action=telegram.ChatAction.TYPING)
+
+    keyboard = [['/update', '/list', '/info'],
+               ['/BTC', '/ETH', '/XMR'],
+               ['/EUR', '/RUB', '/PYPL'],
+               ['/TSLA', '/RUS2000', '/SP500'],]
+
+    reply_markup = telegram.ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+    bot.sendMessage(update.message.chat_id, text='Hello! Welcome to the Financial Forecast and Price Prediction Telegram bot!'
+                              ' This bot gives daily price correlations and future price predictions of'
+                              ' Bitcoin, Ether, Monero, USD/EUR, USD/RUB, PYPL, TSLA, SP500, and the Russel 2000!', reply_markup=reply_markup)
 
     update.message.reply_text('Type /update to see the latest correlation matricies and price predictions.'
                               ' Type /list to see the list of analyzed assets.'
                               ' Type /info for more info. All charts are updated daily.')
-   
+
     from datetime import datetime
     user = update.message.from_user
     chat_id = update.message.chat_id
@@ -50,14 +59,14 @@ def start(update: Update, context: CallbackContext) -> None:
     now = datetime.now()
     dt_string = now.strftime("%Y-%m-%d %H:%M:%S")
     logfile = [dt_string, chat_id, fullname, username, 'update']
-    
+
     with open('/home/ubuntu/Desktop/telegrambotlog.csv', 'a', newline='') as myfile:
         wr = csv.writer(myfile)
         wr.writerow(logfile)
-    
+
     print("{} Name: {} {} Username: {} Chat ID: {} Function: Start". format(dt_string, first_name, last_name , username, chat_id))
-    
-    
+
+
 
 def list(update: Update, context: CallbackContext) -> None:
     update.message.reply_text(
@@ -71,8 +80,8 @@ def update(update, context):
     photo = open('/home/ubuntu/Desktop/TelegramBot/charts/correlationmatrix180.jpeg', 'rb')
     caption = "180 day correlation matrix {}".format(today)
     chat_id = update.message.chat_id
-    context.bot.send_photo(chat_id, photo, caption)   
-    
+    context.bot.send_photo(chat_id, photo, caption)
+
     photo = open('/home/ubuntu/Desktop/TelegramBot/charts/correlationmatrix30.jpeg', 'rb')
     caption = "30 day correlation matrix {}".format(today)
     chat_id = update.message.chat_id
@@ -82,10 +91,10 @@ def update(update, context):
     caption = "Yield Curve {}".format(today)
     chat_id = update.message.chat_id
     context.bot.send_photo(chat_id, photo, caption)
-    
+
     BTC1 = open('/home/ubuntu/Desktop/TelegramBot/predictions/futurepriceBTC.txt', 'r').read()
     BTC2 = open('/home/ubuntu/Desktop/TelegramBot/predictions/meanabsoluteerrorBTC.txt', 'r').read()
-    
+
     if type(BTC1) or type(BTC2) == int or float:
         #calculating Δ%
         nbtc = float(BTC1)
@@ -99,7 +108,7 @@ def update(update, context):
         e = (nbtc2 / nbtc) * 100
         eBTC = '%.2f' % e
         BTC = 'Predicted price of Bitcoin in 1 day $%s   (Δ%s%%)   %s%% error' % (BTC1, dvBTC, eBTC)
-        
+
     else:
         text = 'Yahoo Finance is currently missing data for BTC-USD. Could not run prediction model at this time.'
         chat_id = update.message.chat_id
@@ -143,7 +152,7 @@ def update(update, context):
         e = (nxmr2 / nxmr) * 100
         eXMR = '%.2f' % e
         XMR = 'Predicted price of Monero in 1 day $%s   (Δ%s%%)   %s%% error' % (XMR1, dvXMR, eXMR)
-        
+
 
     else:
         text = 'Yahoo Finance is currently missing data for XMR-USD. Could not run prediction model at this time.'
@@ -166,7 +175,7 @@ def update(update, context):
         e = (npypl2 / npypl) * 100
         ePYPL = '%.2f' % e
         PYPL = 'Predicted price of PayPal stock in 7 days $%s (Δ%s%%) %s%% error' % (PYPL1, dvPYPL, ePYPL)
-        
+
     else:
         text = 'Yahoo Finance is currently missing data for PYPL. Could not run prediction model at this time.'
         chat_id = update.message.chat_id
@@ -210,7 +219,7 @@ def update(update, context):
         e = (neur2 / neur) * 100
         eEUR = '%.2f' % e
         EUR = 'Predicted exchange rate of EUR/USD in 7 days $%s (Δ%s%%) %s%% error' % (EUR1, dvEUR, eEUR)
-        
+
 
     else:
         text = 'Yahoo Finance is currently missing data for EUR/USD. Could not run prediction model at this time.'
@@ -283,14 +292,14 @@ def update(update, context):
         chat_id = update.message.chat_id
         bot.send_message(chat_id, text)
 
-   
+
     dailyupdate = ("▪️{}\n\n▪️{}\n\n▪️{}\n\n▪️{}\n\n▪️{}\n\n▪️{}\n\n▪️{}\n\n🇪🇺{}\n\n🇷🇺{}").format(BTC,ETH,XMR,PYPL,TSLA,SP,RUS,EUR,RUB)
     bot.send_message(chat_id, dailyupdate)
 
     update.message.reply_text(
         'Type /BTC /ETH /XMR /EUR /RUB\n /PYPL /TSLA /RUS2000 /SP500 to get specific information about each asset.'
         )
-    
+
 
     from datetime import datetime
     user = update.message.from_user
@@ -302,13 +311,13 @@ def update(update, context):
     now = datetime.now()
     dt_string = now.strftime("%Y-%m-%d %H:%M:%S")
     logfile = [dt_string, chat_id, fullname, username, 'update']
-    
+
     with open('/home/ubuntu/Desktop/telegrambotlog.csv', 'a', newline='') as myfile:
         wr = csv.writer(myfile)
         wr.writerow(logfile)
-    
+
     print("{} Name: {} {} Username: {} Chat ID: {} Function: Update". format(dt_string, first_name, last_name , username, chat_id))
-   
+
     '''
     GOLD1 = open('/home/ubuntu/Desktop/TelegramBot/predictions/futurepriceGOLD.txt', 'r').read()
     GOLD2 = open('/home/ubuntu/Desktop/TelegramBot/predictions/meanabsoluteerrorGOLD.txt', 'r').read()
@@ -710,7 +719,7 @@ def info(update: Update, context: CallbackContext) -> None:
     update.message.reply_text(
         'Type /moreinfo for more information'
     )
-    
+
     from datetime import datetime
     user = update.message.from_user
     chat_id = update.message.chat_id
@@ -721,11 +730,11 @@ def info(update: Update, context: CallbackContext) -> None:
     now = datetime.now()
     dt_string = now.strftime("%Y-%m-%d %H:%M:%S")
     logfile = [dt_string, chat_id, fullname, username, 'update']
-    
+
     with open('/home/ubuntu/Desktop/telegrambotlog.csv', 'a', newline='') as myfile:
         wr = csv.writer(myfile)
         wr.writerow(logfile)
-    
+
     print("{} Name: {} {} Username: {} Chat ID: {} Function: More Info". format(dt_string, first_name, last_name , username, chat_id))
 
 
@@ -747,12 +756,24 @@ def unknown(bot, update):
 
 
 
+
+
+def button(update: Update, _: CallbackContext) -> None:
+    query = update.callback_query
+
+    # CallbackQueries need to be answered, even if no notification to the user is needed
+    # Some clients may have trouble otherwise. See https://core.telegram.org/bots/api#callbackquery
+    query.answer()
+
+    query.edit_message_text(text=f"Selected option: {query.data}")
+
+
 def main():
     """Run bot."""
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
     # Post version 12 this will no longer be necessary
-    updater = Updater("token", use_context=True)
+    updater = Updater("1553160304:AAHU61z6Fpo_v9Ipe-t32ORTMGKarKnhKnU", use_context=True)
 
     # Get the dispatcher to register handlers
     dispatcher = updater.dispatcher
@@ -773,7 +794,8 @@ def main():
     dispatcher.add_handler(CommandHandler("RUB", RUB))
     dispatcher.add_handler(CommandHandler("SP500", SP500))
     dispatcher.add_handler(CommandHandler("RUS2000", RUS2000))
-      
+
+
 
     # dispatcher.add_handler(CommandHandler("GOLD", GOLD))
     # dispatcher.add_handler(CommandHandler("OIL", OIL))
@@ -789,4 +811,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
