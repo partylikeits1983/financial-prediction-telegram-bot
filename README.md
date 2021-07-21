@@ -39,7 +39,7 @@ The version of this bot is up and running at:
 
 If you like this bot, please consider buying me a coffee :)
 
-
+Ethereum Address:  0x5c13Af2fbA82981994b1B3D5C20F7E2c971f28D3
 
 ## License
 MIT
