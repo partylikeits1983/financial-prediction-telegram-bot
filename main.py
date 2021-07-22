@@ -17,28 +17,25 @@ import telegram
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, ReplyKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, CallbackContext
 
-
 import logging
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
 
-TOKEN = 'TOKEN'
+TOKEN = 'add your telegram token here'
 
 today = date.today()
 
 bot = telegram.Bot(TOKEN)
 
 
-
 def start(update: Update, context: CallbackContext) -> None:
 
     context.bot.sendChatAction(chat_id=update.message.chat_id, action=telegram.ChatAction.TYPING)
 
-    keyboard = [['/update', '/list', '/info'],
-               ['/BTC', '/ETH', '/XMR'],
-               ['/EUR', '/RUB', '/PYPL'],
-               ['/TSLA', '/RUS2000', '/SP500'],]
+    keyboard = [['/update', '/matricies'],
+               ['/yieldcurve', '/info'],
+               ['/list'],]
 
     reply_markup = telegram.ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
     bot.sendMessage(update.message.chat_id, text='Hello! Welcome to the Financial Forecast and Price Prediction Telegram bot!'
@@ -70,27 +67,13 @@ def start(update: Update, context: CallbackContext) -> None:
 
 def list(update: Update, context: CallbackContext) -> None:
     update.message.reply_text(
-        'Type /BTC /ETH /XMR /EUR /RUB\n /PYPL /TSLA /RUS2000 /SP500 to get specific information about each asset.'
+        'Commands: \n/BTC \n/ETH \n/UNI \n/GOLD \n/OIL  \n/SP500 \n/EUR \n/RUB'
         )
 
 
 def update(update, context):
     context.bot.sendChatAction(chat_id=update.message.chat_id, action=telegram.ChatAction.TYPING)
 
-    photo = open('/home/ubuntu/Desktop/TelegramBot/charts/correlationmatrix180.jpeg', 'rb')
-    caption = "180 day correlation matrix {}".format(today)
-    chat_id = update.message.chat_id
-    context.bot.send_photo(chat_id, photo, caption)
-
-    photo = open('/home/ubuntu/Desktop/TelegramBot/charts/correlationmatrix30.jpeg', 'rb')
-    caption = "30 day correlation matrix {}".format(today)
-    chat_id = update.message.chat_id
-    context.bot.send_photo(chat_id, photo, caption)
-
-    photo = open('/home/ubuntu/Desktop/TelegramBot/charts/yield.jpeg', 'rb')
-    caption = "Yield Curve {}".format(today)
-    chat_id = update.message.chat_id
-    context.bot.send_photo(chat_id, photo, caption)
 
     BTC1 = open('/home/ubuntu/Desktop/TelegramBot/predictions/futurepriceBTC.txt', 'r').read()
     BTC2 = open('/home/ubuntu/Desktop/TelegramBot/predictions/meanabsoluteerrorBTC.txt', 'r').read()
@@ -136,72 +119,30 @@ def update(update, context):
         chat_id = update.message.chat_id
         bot.send_message(chat_id, text)
 
-    XMR1 = open('/home/ubuntu/Desktop/TelegramBot/predictions/futurepriceXMR.txt', 'r').read()
-    XMR2 = open('/home/ubuntu/Desktop/TelegramBot/predictions/meanabsoluteerrorXMR.txt', 'r').read()
 
-    if type(XMR1) or type(XMR2) == int or float:
+    UNI1 = open('/home/ubuntu/Desktop/TelegramBot/predictions/futurepriceUNI.txt', 'r').read()
+    UNI2 = open('/home/ubuntu/Desktop/TelegramBot/predictions/meanabsoluteerrorUNI.txt', 'r').read()
+
+    if type(UNI1) or type(UNI2) == int or float:
         #calculating Δ%
-        nxmr = float(XMR1)
-        s = pd.Series([si.get_live_price("XMR-USD"), nxmr])
+        nuni = float(UNI1)
+        s = pd.Series([si.get_live_price("UNI3-USD"), nuni])
         s.pct_change()
         normal_sum = s.pct_change()
         normal_sum.at[1]
-        dvXMR = str(round((normal_sum.at[1] * 100), 2))
+        dvUNI = str(round((normal_sum.at[1] * 100), 2))
         #calculating % error
-        nxmr2 = float(XMR2)
-        e = (nxmr2 / nxmr) * 100
-        eXMR = '%.2f' % e
-        XMR = 'Predicted price of Monero in 1 day $%s   (Δ%s%%)   %s%% error' % (XMR1, dvXMR, eXMR)
-
+        nuni2 = float(UNI2)
+        e = (nuni2 / nuni) * 100
+        eUNI = '%.2f' % e
+        UNI = 'Predicted price of Uniswap in 1 day $%s   (Δ%s%%)   %s%% error' % (UNI1, dvUNI, eUNI)
 
     else:
-        text = 'Yahoo Finance is currently missing data for XMR-USD. Could not run prediction model at this time.'
+        text = 'Yahoo Finance is currently missing data for Uniswap. Could not run prediction model at this time.'
         chat_id = update.message.chat_id
         bot.send_message(chat_id, text)
 
-    PYPL1 = open('/home/ubuntu/Desktop/TelegramBot/predictions/futurepricePYPL.txt', 'r').read()
-    PYPL2 = open('/home/ubuntu/Desktop/TelegramBot/predictions/meanabsoluteerrorPYPL.txt', 'r').read()
 
-    if type(PYPL1) or type(PYPL2) == int or float:
-        #calculating Δ%
-        npypl = float(PYPL1)
-        s = pd.Series([si.get_live_price("PYPL"), npypl])
-        s.pct_change()
-        normal_sum = s.pct_change()
-        normal_sum.at[1]
-        dvPYPL = str(round((normal_sum.at[1] * 100), 2))
-        #calculating % error
-        npypl2 = float(PYPL2)
-        e = (npypl2 / npypl) * 100
-        ePYPL = '%.2f' % e
-        PYPL = 'Predicted price of PayPal stock in 7 days $%s (Δ%s%%) %s%% error' % (PYPL1, dvPYPL, ePYPL)
-
-    else:
-        text = 'Yahoo Finance is currently missing data for PYPL. Could not run prediction model at this time.'
-        chat_id = update.message.chat_id
-        bot.send_message(chat_id, text)
-
-    TSLA1 = open('/home/ubuntu/Desktop/TelegramBot/predictions/futurepriceTSLA.txt', 'r').read()
-    TSLA2 = open('/home/ubuntu/Desktop/TelegramBot/predictions/meanabsoluteerrorTSLA.txt', 'r').read()
-
-    if type(TSLA1) or type(TSLA2) == int or float:
-        #calculating Δ%
-        ntsla = float(TSLA1)
-        s = pd.Series([si.get_live_price("TSLA"), ntsla])
-        s.pct_change()
-        normal_sum = s.pct_change()
-        normal_sum.at[1]
-        dvTSLA = str(round((normal_sum.at[1] * 100), 2))
-        #calculating % error
-        ntsla2 = float(TSLA2)
-        e = (ntsla2 / ntsla) * 100
-        eTSLA = '%.2f' % e
-        TSLA = 'Predicted price of Tesla stock in 7 days $%s (Δ%s%%) %s%% error' % (TSLA1, dvTSLA, eTSLA)
-
-    else:
-        text = 'Yahoo Finance is currently missing data for TSLA. Could not run prediction model at this time.'
-        chat_id = update.message.chat_id
-        bot.send_message(chat_id, text)
 
     EUR1 = open('/home/ubuntu/Desktop/TelegramBot/predictions/futurepriceEUR.txt', 'r').read()
     EUR2 = open('/home/ubuntu/Desktop/TelegramBot/predictions/meanabsoluteerrorEUR.txt', 'r').read()
@@ -270,34 +211,57 @@ def update(update, context):
         chat_id = update.message.chat_id
         bot.send_message(chat_id, text)
 
-    RUS1 = open('/home/ubuntu/Desktop/TelegramBot/predictions/futurepriceRUS.txt', 'r').read()
-    RUS2 = open('/home/ubuntu/Desktop/TelegramBot/predictions/meanabsoluteerrorRUS.txt', 'r').read()
+    GOLD1 = open('/home/ubuntu/Desktop/TelegramBot/predictions/futurepriceGOLD.txt', 'r').read()
+    GOLD2 = open('/home/ubuntu/Desktop/TelegramBot/predictions/meanabsoluteerrorGOLD.txt', 'r').read()
 
-    if type(RUS1) or type(RUS2) == int or float:
+    if type(GOLD1) or type(GOLD2) == int or float:
         #calculating Δ%
-        nrus = float(RUS1)
-        s = pd.Series([si.get_live_price("^RUT"), nrus])
+        ngold = float(GOLD1)
+        s = pd.Series([si.get_live_price("GC=F"), ngold])
         s.pct_change()
         normal_sum = s.pct_change()
         normal_sum.at[1]
-        dvRUS = str(round((normal_sum.at[1] * 100), 2))
+        dvGOLD = str(round((normal_sum.at[1] * 100), 2))
         #calculating % error
-        nrus2 = float(RUS2)
-        e = (nrus2 / nrus) * 100
-        eRUS = '%.2f' % e
-        RUS = 'Predicted value of the Russel 2000 in 7 days %s points (Δ%s%%) %s%% error' % (RUS1, dvRUS, eRUS)
+        ngold2 = float(GOLD2)
+        e = (ngold2 / ngold) * 100
+        eGOLD = '%.2f' % e
+        GOLD = 'Predicted value of Gold in 7 days %s points (Δ%s%%) %s%% error' % (GOLD1, dvGOLD, eGOLD)
 
     else:
-        text = 'Yahoo Finance is currently missing data for Russel 2000. Could not run prediction model at this time.'
+        text = 'Yahoo Finance is currently missing data for Gold. Could not run prediction model at this time.'
+        chat_id = update.message.chat_id
+        bot.send_message(chat_id, text)
+
+    OIL1 = open('/home/ubuntu/Desktop/TelegramBot/predictions/futurepriceOIL.txt', 'r').read()
+    OIL2 = open('/home/ubuntu/Desktop/TelegramBot/predictions/meanabsoluteerrorOIL.txt', 'r').read()
+
+    if type(OIL1) or type(OIL2) == int or float:
+        #calculating Δ%
+        noil = float(OIL1)
+        s = pd.Series([si.get_live_price("CL=F"), nsp])
+        s.pct_change()
+        normal_sum = s.pct_change()
+        normal_sum.at[1]
+        dvOIL = str(round((normal_sum.at[1] * 100), 2))
+        #calculating % error
+        noil2 = float(OIL2)
+        e = (noil2 / noil) * 100
+        eOIL = '%.2f' % e
+        OIL = 'Predicted value of Crude Oil in 7 days %s points (Δ%s%%) %s%% error' % (OIL1, dvOIL, eOIL)
+
+    else:
+        text = 'Yahoo Finance is currently missing data for Crude Oil. Could not run prediction model at this time.'
         chat_id = update.message.chat_id
         bot.send_message(chat_id, text)
 
 
-    dailyupdate = ("▪️{}\n\n▪️{}\n\n▪️{}\n\n▪️{}\n\n▪️{}\n\n▪️{}\n\n▪️{}\n\n🇪🇺{}\n\n🇷🇺{}").format(BTC,ETH,XMR,PYPL,TSLA,SP,RUS,EUR,RUB)
+    chat_id = update.message.chat_id
+    dailyupdate = ("▪️{}\n\n▪️{}\n\n▪️{}\n\n▪️{}\n\n▪️{}\n\n▪️{}\n\n🇪🇺{}\n\n🇷🇺{}").format(BTC,ETH,UNI,SP,GOLD,OIL,EUR,RUB)
     bot.send_message(chat_id, dailyupdate)
 
     update.message.reply_text(
-        'Type /BTC /ETH /XMR /EUR /RUB\n /PYPL /TSLA /RUS2000 /SP500 to get specific information about each asset.'
+        'Type /list to view specific assets'
         )
 
 
@@ -318,20 +282,27 @@ def update(update, context):
 
     print("{} Name: {} {} Username: {} Chat ID: {} Function: Update". format(dt_string, first_name, last_name , username, chat_id))
 
-    '''
-    GOLD1 = open('/home/ubuntu/Desktop/TelegramBot/predictions/futurepriceGOLD.txt', 'r').read()
-    GOLD2 = open('/home/ubuntu/Desktop/TelegramBot/predictions/meanabsoluteerrorGOLD.txt', 'r').read()
-    text = 'Predicted price of Gold in 7 days $%s mean absolute error %s' % (GOLD1, GOLD2)
-    chat_id = update.message.chat_id
-    bot.send_message(chat_id, text)
 
-    OIL1 = open('/home/ubuntu/Desktop/TelegramBot/predictions/futurepriceOIL.txt', 'r').read()
-    OIL2 = open('/home/ubuntu/Desktop/TelegramBot/predictions/meanabsoluteerrorOIL.txt', 'r').read()
-    text = 'Predicted price of Crude Oil in 7 days $%s mean absolute error %s' % (OIL1, OIL2)
-    chat_id = update.message.chat_id
-    bot.send_message(chat_id, text)
 
-    '''
+def matricies(update, context):
+    context.bot.sendChatAction(chat_id=update.message.chat_id, action=telegram.ChatAction.TYPING)
+    photo = open('/home/ubuntu/Desktop/TelegramBot/charts/correlationmatrix180.jpeg', 'rb')
+    caption = "180 day correlation matrix {}".format(today)
+    chat_id = update.message.chat_id
+    context.bot.send_photo(chat_id, photo, caption)
+
+    photo = open('/home/ubuntu/Desktop/TelegramBot/charts/correlationmatrix30.jpeg', 'rb')
+    caption = "30 day correlation matrix {}".format(today)
+    chat_id = update.message.chat_id
+    context.bot.send_photo(chat_id, photo, caption)
+
+
+def yieldcurve(update, context):
+    context.bot.sendChatAction(chat_id=update.message.chat_id, action=telegram.ChatAction.TYPING)
+    photo = open('/home/ubuntu/Desktop/TelegramBot/charts/yield.jpeg', 'rb')
+    caption = "Yield Curve {}".format(today)
+    chat_id = update.message.chat_id
+    context.bot.send_photo(chat_id, photo, caption)
 
 
 def BTC(update, context):
@@ -346,10 +317,25 @@ def BTC(update, context):
     chat_id = update.message.chat_id
     context.bot.send_photo(chat_id, photo, caption)
 
+    photo = open('/home/ubuntu/Desktop/TelegramBot/charts/BTCforcastwithlines.jpeg', 'rb')
+    caption = "Bitcoin performance {}".format(today)
+    chat_id = update.message.chat_id
+    context.bot.send_photo(chat_id, photo, caption)
+
+    photo = open('/home/ubuntu/Desktop/TelegramBot/charts/BTCml.jpeg', 'rb')
+    caption = "Actual vs Predicted price of ML model {}".format(today)
+    chat_id = update.message.chat_id
+    context.bot.send_photo(chat_id, photo, caption)
+
     BTC1 = open('/home/ubuntu/Desktop/TelegramBot/predictions/futurepriceBTC.txt', 'r').read()
     BTC2 = open('/home/ubuntu/Desktop/TelegramBot/predictions/meanabsoluteerrorBTC.txt', 'r').read()
+    BTC3 = open('/home/ubuntu/Desktop/TelegramBot/predictions/buyprofitBTC.txt', 'r').read()
+    BTC4 = open('/home/ubuntu/Desktop/TelegramBot/predictions/sellprofitBTC.txt', 'r').read()
+    BTC5 = open('/home/ubuntu/Desktop/TelegramBot/predictions/totalprofitBTC.txt', 'r').read()
+    BTC6 = open('/home/ubuntu/Desktop/TelegramBot/predictions/profitpertradeBTC.txt', 'r').read()
 
-    if type(BTC1) == int or float:
+
+    if type(BTC1) or type(BTC2) == int or float:
         #calculating Δ%
         nbtc = float(BTC1)
         s = pd.Series([si.get_live_price("BTC-USD"), nbtc])
@@ -361,7 +347,7 @@ def BTC(update, context):
         nbtc2 = float(BTC2)
         e = (nbtc2 / nbtc) * 100
         eBTC = '%.2f' % e
-        BTC = 'Predicted price of Bitcoin in 1 day $%s   (Δ%s%%)   %s%% error' % (BTC1, dvBTC, eBTC)
+        BTC = 'Predicted price of Bitcoin in 1 day $%s   (Δ%s%%)\n Model Error: %s%% \n Total buy profit: %s\n Total sell profit: %s \n Total profit: %s \n Profit per trade: %s \n' % (BTC1, dvBTC, eBTC, BTC3, BTC4, BTC5, BTC6)
         chat_id = update.message.chat_id
         bot.send_message(chat_id, BTC)
     else:
@@ -373,7 +359,7 @@ def BTC(update, context):
 def ETH(update, context):
     context.bot.sendChatAction(chat_id=update.message.chat_id, action=telegram.ChatAction.TYPING)
     photo = open('/home/ubuntu/Desktop/TelegramBot/charts/ETHforcast.jpeg', 'rb')
-    caption = "Ether future price chart for {}".format(today)
+    caption = "Ether forcast chart for {}".format(today)
     chat_id = update.message.chat_id
     context.bot.send_photo(chat_id, photo, caption)
 
@@ -382,8 +368,23 @@ def ETH(update, context):
     chat_id = update.message.chat_id
     context.bot.send_photo(chat_id, photo, caption)
 
+    photo = open('/home/ubuntu/Desktop/TelegramBot/charts/ETHforcastwithlines.jpeg', 'rb')
+    caption = "Ether performance {}".format(today)
+    chat_id = update.message.chat_id
+    context.bot.send_photo(chat_id, photo, caption)
+
+    photo = open('/home/ubuntu/Desktop/TelegramBot/charts/ETHml.jpeg', 'rb')
+    caption = "Actual vs Predicted price of ML model {}".format(today)
+    chat_id = update.message.chat_id
+    context.bot.send_photo(chat_id, photo, caption)
+
     ETH1 = open('/home/ubuntu/Desktop/TelegramBot/predictions/futurepriceETH.txt', 'r').read()
     ETH2 = open('/home/ubuntu/Desktop/TelegramBot/predictions/meanabsoluteerrorETH.txt', 'r').read()
+    ETH3 = open('/home/ubuntu/Desktop/TelegramBot/predictions/buyprofitETH.txt', 'r').read()
+    ETH4 = open('/home/ubuntu/Desktop/TelegramBot/predictions/sellprofitETH.txt', 'r').read()
+    ETH5 = open('/home/ubuntu/Desktop/TelegramBot/predictions/totalprofitETH.txt', 'r').read()
+    ETH6 = open('/home/ubuntu/Desktop/TelegramBot/predictions/profitpertradeETH.txt', 'r').read()
+
 
     if type(ETH1) or type(ETH2) == int or float:
         #calculating Δ%
@@ -397,28 +398,94 @@ def ETH(update, context):
         neth2 = float(ETH2)
         e = (neth2 / neth) * 100
         eETH = '%.2f' % e
-        ETH = 'Predicted price of Ether in 1 day $%s   (Δ%s%%)   %s%% error' % (ETH1, dvETH, eETH)
-
-    else:
-        text = 'Yahoo Finance is currently missing data for ETH-USD. Could not run prediction model at this time.'
+        ETH = 'Predicted price of Ether in 1 day $%s   (Δ%s%%)\n Model Error: %s%% \n Total buy profit: %s\n Total sell profit: %s \n Total profit: %s \n Profit per trade: %s \n' % (ETH1, dvETH, eETH, ETH3, ETH4, ETH5, ETH6)
         chat_id = update.message.chat_id
         bot.send_message(chat_id, ETH)
+    else:
+        text = 'Yahoo Finance is missing data for Ether. Could not run prediction model at this time.'
+        chat_id = update.message.chat_id
+        bot.send_message(chat_id, text)
+
+def UNI(update, context):
+    context.bot.sendChatAction(chat_id=update.message.chat_id, action=telegram.ChatAction.TYPING)
+    photo = open('/home/ubuntu/Desktop/TelegramBot/charts/UNIforcast.jpeg', 'rb')
+    caption = "Uniswap forcast chart for {}".format(today)
+    chat_id = update.message.chat_id
+    context.bot.send_photo(chat_id, photo, caption)
+
+    photo = open('/home/ubuntu/Desktop/TelegramBot/charts/UNItrend.jpeg', 'rb')
+    caption = "Uniswap performance {}".format(today)
+    chat_id = update.message.chat_id
+    context.bot.send_photo(chat_id, photo, caption)
+
+    photo = open('/home/ubuntu/Desktop/TelegramBot/charts/UNIforcastwithlines.jpeg', 'rb')
+    caption = "Uniswap performance {}".format(today)
+    chat_id = update.message.chat_id
+    context.bot.send_photo(chat_id, photo, caption)
+
+    photo = open('/home/ubuntu/Desktop/TelegramBot/charts/UNIml.jpeg', 'rb')
+    caption = "Actual vs Predicted price of ML model {}".format(today)
+    chat_id = update.message.chat_id
+    context.bot.send_photo(chat_id, photo, caption)
+
+    UNI1 = open('/home/ubuntu/Desktop/TelegramBot/predictions/futurepriceUNI.txt', 'r').read()
+    UNI2 = open('/home/ubuntu/Desktop/TelegramBot/predictions/meanabsoluteerrorUNI.txt', 'r').read()
+    UNI3 = open('/home/ubuntu/Desktop/TelegramBot/predictions/buyprofitUNI.txt', 'r').read()
+    UNI4 = open('/home/ubuntu/Desktop/TelegramBot/predictions/sellprofitUNI.txt', 'r').read()
+    UNI5 = open('/home/ubuntu/Desktop/TelegramBot/predictions/totalprofitUNI.txt', 'r').read()
+    UNI6 = open('/home/ubuntu/Desktop/TelegramBot/predictions/profitpertradeUNI.txt', 'r').read()
+
+
+    if type(UNI1) or type(UNI2) == int or float:
+        #calculating Δ%
+        nuni = float(UNI1)
+        s = pd.Series([si.get_live_price("UNI3-USD"), nuni])
+        s.pct_change()
+        normal_sum = s.pct_change()
+        normal_sum.at[1]
+        dvUNI = str(round((normal_sum.at[1] * 100), 2))
+        #calculating % error
+        nuni2 = float(UNI2)
+        e = (nuni2 / nuni) * 100
+        eUNI = '%.2f' % e
+        UNI = 'Predicted price of Uniswap in 1 day $%s   (Δ%s%%)\n Model Error: %s%% \n Total buy profit: %s\n Total sell profit: %s \n Total profit: %s \n Profit per trade: %s \n' % (UNI1, dvUNI, eUNI, UNI3, UNI4, UNI5, UNI6)
+        chat_id = update.message.chat_id
+        bot.send_message(chat_id, UNI)
+    else:
+        text = 'Yahoo Finance is missing data for Uniswap. Could not run prediction model at this time.'
+        chat_id = update.message.chat_id
+        bot.send_message(chat_id, text)
 
 
 def EUR(update, context):
     context.bot.sendChatAction(chat_id=update.message.chat_id, action=telegram.ChatAction.TYPING)
     photo = open('/home/ubuntu/Desktop/TelegramBot/charts/EURforcast.jpeg', 'rb')
-    caption = "USD/EUR future price chart for {}".format(today)
+    caption = "Euro forcast chart for {}".format(today)
     chat_id = update.message.chat_id
     context.bot.send_photo(chat_id, photo, caption)
 
     photo = open('/home/ubuntu/Desktop/TelegramBot/charts/EURtrend.jpeg', 'rb')
-    caption = "EURO performance {}".format(today)
+    caption = "Euro performance {}".format(today)
+    chat_id = update.message.chat_id
+    context.bot.send_photo(chat_id, photo, caption)
+
+    photo = open('/home/ubuntu/Desktop/TelegramBot/charts/EURforcastwithlines.jpeg', 'rb')
+    caption = "Euro performance {}".format(today)
+    chat_id = update.message.chat_id
+    context.bot.send_photo(chat_id, photo, caption)
+
+    photo = open('/home/ubuntu/Desktop/TelegramBot/charts/EURml.jpeg', 'rb')
+    caption = "Actual vs Predicted price of ML model {}".format(today)
     chat_id = update.message.chat_id
     context.bot.send_photo(chat_id, photo, caption)
 
     EUR1 = open('/home/ubuntu/Desktop/TelegramBot/predictions/futurepriceEUR.txt', 'r').read()
     EUR2 = open('/home/ubuntu/Desktop/TelegramBot/predictions/meanabsoluteerrorEUR.txt', 'r').read()
+    EUR3 = open('/home/ubuntu/Desktop/TelegramBot/predictions/buyprofitEUR.txt', 'r').read()
+    EUR4 = open('/home/ubuntu/Desktop/TelegramBot/predictions/sellprofitEUR.txt', 'r').read()
+    EUR5 = open('/home/ubuntu/Desktop/TelegramBot/predictions/totalprofitEUR.txt', 'r').read()
+    EUR6 = open('/home/ubuntu/Desktop/TelegramBot/predictions/profitpertradeEUR.txt', 'r').read()
+
 
     if type(EUR1) or type(EUR2) == int or float:
         #calculating Δ%
@@ -432,12 +499,11 @@ def EUR(update, context):
         neur2 = float(EUR2)
         e = (neur2 / neur) * 100
         eEUR = '%.2f' % e
-        EUR = 'Predicted exchange rate of EUR/USD in 7 days $%s (Δ%s%%) %s%% error' % (EUR1, dvEUR, eEUR)
+        EUR = 'Predicted price of Euro in 7 days $%s   (Δ%s%%)\n Model Error: %s%% \n Total buy profit: %s\n Total sell profit: %s \n Total profit: %s \n Profit per trade: %s \n' % (EUR1, dvEUR, eEUR, EUR3, EUR4, EUR5, EUR6)
         chat_id = update.message.chat_id
         bot.send_message(chat_id, EUR)
-
     else:
-        text = 'Yahoo Finance is currently missing data for EUR/USD. Could not run prediction model at this time.'
+        text = 'Yahoo Finance is missing data for this asset. Could not run prediction model at this time.'
         chat_id = update.message.chat_id
         bot.send_message(chat_id, text)
 
@@ -445,7 +511,7 @@ def EUR(update, context):
 def RUB(update, context):
     context.bot.sendChatAction(chat_id=update.message.chat_id, action=telegram.ChatAction.TYPING)
     photo = open('/home/ubuntu/Desktop/TelegramBot/charts/RUBforcast.jpeg', 'rb')
-    caption = "USD/RUB exchange rate prediction chart for {}".format(today)
+    caption = "Ruble forcast chart for {}".format(today)
     chat_id = update.message.chat_id
     context.bot.send_photo(chat_id, photo, caption)
 
@@ -454,8 +520,23 @@ def RUB(update, context):
     chat_id = update.message.chat_id
     context.bot.send_photo(chat_id, photo, caption)
 
+    photo = open('/home/ubuntu/Desktop/TelegramBot/charts/RUBforcastwithlines.jpeg', 'rb')
+    caption = "Ruble performance {}".format(today)
+    chat_id = update.message.chat_id
+    context.bot.send_photo(chat_id, photo, caption)
+
+    photo = open('/home/ubuntu/Desktop/TelegramBot/charts/RUBml.jpeg', 'rb')
+    caption = "Actual vs Predicted price of ML model {}".format(today)
+    chat_id = update.message.chat_id
+    context.bot.send_photo(chat_id, photo, caption)
+
     RUB1 = open('/home/ubuntu/Desktop/TelegramBot/predictions/futurepriceRUB.txt', 'r').read()
     RUB2 = open('/home/ubuntu/Desktop/TelegramBot/predictions/meanabsoluteerrorRUB.txt', 'r').read()
+    RUB3 = open('/home/ubuntu/Desktop/TelegramBot/predictions/buyprofitRUB.txt', 'r').read()
+    RUB4 = open('/home/ubuntu/Desktop/TelegramBot/predictions/sellprofitRUB.txt', 'r').read()
+    RUB5 = open('/home/ubuntu/Desktop/TelegramBot/predictions/totalprofitRUB.txt', 'r').read()
+    RUB6 = open('/home/ubuntu/Desktop/TelegramBot/predictions/profitpertradeRUB.txt', 'r').read()
+
 
     if type(RUB1) or type(RUB2) == int or float:
         #calculating Δ%
@@ -469,167 +550,20 @@ def RUB(update, context):
         nrub2 = float(RUB2)
         e = (nrub2 / nrub) * 100
         eRUB = '%.2f' % e
-        RUB = 'Predicted exchange rate of USD/RUB in 7 days $%s (Δ%s%%) %s%% error' % (RUB1, dvRUB, eRUB)
+        RUB = 'Predicted price of Ruble in 7 days $%s   (Δ%s%%)\n Model Error: %s%% \n Total buy profit: %s\n Total sell profit: %s \n Total profit: %s \n Profit per trade: %s \n' % (RUB1, dvRUB, eRUB, RUB3, RUB4, RUB5, RUB6)
         chat_id = update.message.chat_id
         bot.send_message(chat_id, RUB)
-
     else:
-        text = 'Yahoo Finance is currently missing data for USD/RUB. Could not run prediction model at this time.'
+        text = 'Yahoo Finance is missing data for this currency pair. Could not run prediction model at this time.'
         chat_id = update.message.chat_id
         bot.send_message(chat_id, text)
 
-
-def XMR(update, context):
-    context.bot.sendChatAction(chat_id=update.message.chat_id, action=telegram.ChatAction.TYPING)
-    photo = open('/home/ubuntu/Desktop/TelegramBot/charts/XMRforcast.jpeg', 'rb')
-    caption = "Monero price prediction chart for {}".format(today)
-    chat_id = update.message.chat_id
-    context.bot.send_photo(chat_id, photo, caption)
-
-    photo = open('/home/ubuntu/Desktop/TelegramBot/charts/XMRtrend.jpeg', 'rb')
-    caption = "Monero performance {}".format(today)
-    chat_id = update.message.chat_id
-    context.bot.send_photo(chat_id, photo, caption)
-
-    XMR1 = open('/home/ubuntu/Desktop/TelegramBot/predictions/futurepriceXMR.txt', 'r').read()
-    XMR2 = open('/home/ubuntu/Desktop/TelegramBot/predictions/meanabsoluteerrorXMR.txt', 'r').read()
-
-    if type(XMR1) or type(XMR2) == int or float:
-        #calculating Δ%
-        nxmr = float(XMR1)
-        s = pd.Series([si.get_live_price("XMR-USD"), nxmr])
-        s.pct_change()
-        normal_sum = s.pct_change()
-        normal_sum.at[1]
-        dvXMR = str(round((normal_sum.at[1] * 100), 2))
-        #calculating % error
-        nxmr2 = float(XMR2)
-        e = (nxmr2 / nxmr) * 100
-        eXMR = '%.2f' % e
-        XMR = 'Predicted price of Monero in 1 day $%s   (Δ%s%%)   %s%% error' % (XMR1, dvXMR, eXMR)
-        chat_id = update.message.chat_id
-        bot.send_message(chat_id, XMR)
-    else:
-        text = 'Yahoo Finance is currently missing data for XMR-USD. Could not run prediction model at this time.'
-        chat_id = update.message.chat_id
-        bot.send_message(chat_id, text)
-
-
-def PYPL(update, context):
-    context.bot.sendChatAction(chat_id=update.message.chat_id, action=telegram.ChatAction.TYPING)
-    photo = open('/home/ubuntu/Desktop/TelegramBot/charts/PYPLforcast.jpeg', 'rb')
-    caption = "PayPal price prediction chart for {}".format(today)
-    chat_id = update.message.chat_id
-    context.bot.send_photo(chat_id, photo, caption)
-
-    photo = open('/home/ubuntu/Desktop/TelegramBot/charts/PYPLtrend.jpeg', 'rb')
-    caption = "PYPL performance {}".format(today)
-    chat_id = update.message.chat_id
-    context.bot.send_photo(chat_id, photo, caption)
-
-    PYPL1 = open('/home/ubuntu/Desktop/TelegramBot/predictions/futurepricePYPL.txt', 'r').read()
-    PYPL2 = open('/home/ubuntu/Desktop/TelegramBot/predictions/meanabsoluteerrorPYPL.txt', 'r').read()
-
-    if type(PYPL1) or type(PYPL2) == int or float:
-        #calculating Δ%
-        npypl = float(PYPL1)
-        s = pd.Series([si.get_live_price("PYPL"), npypl])
-        s.pct_change()
-        normal_sum = s.pct_change()
-        normal_sum.at[1]
-        dvPYPL = str(round((normal_sum.at[1] * 100), 2))
-        #calculating % error
-        npypl2 = float(PYPL2)
-        e = (npypl2 / npypl) * 100
-        ePYPL = '%.2f' % e
-        PYPL = 'Predicted price of PayPal stock in 7 days $%s (Δ%s%%) %s%% error' % (PYPL1, dvPYPL, ePYPL)
-        chat_id = update.message.chat_id
-        bot.send_message(chat_id, PYPL)
-
-    else:
-        text = 'Yahoo Finance is currently missing data for PYPL. Could not run prediction model at this time.'
-        chat_id = update.message.chat_id
-        bot.send_message(chat_id, text)
-
-
-def TSLA(update, context):
-    context.bot.sendChatAction(chat_id=update.message.chat_id, action=telegram.ChatAction.TYPING)
-    photo = open('/home/ubuntu/Desktop/TelegramBot/charts/TSLAforcast.jpeg', 'rb')
-    caption = "TSLA price prediction chart for {}".format(today)
-    chat_id = update.message.chat_id
-    context.bot.send_photo(chat_id, photo, caption)
-
-    photo = open('/home/ubuntu/Desktop/TelegramBot/charts/TSLAtrend.jpeg', 'rb')
-    caption = "TSLA performance {}".format(today)
-    chat_id = update.message.chat_id
-    context.bot.send_photo(chat_id, photo, caption)
-
-    TSLA1 = open('/home/ubuntu/Desktop/TelegramBot/predictions/futurepriceTSLA.txt', 'r').read()
-    TSLA2 = open('/home/ubuntu/Desktop/TelegramBot/predictions/meanabsoluteerrorTSLA.txt', 'r').read()
-
-    if type(TSLA1) or type(TSLA2) == int or float:
-        #calculating Δ%
-        ntsla = float(TSLA1)
-        s = pd.Series([si.get_live_price("TSLA"), ntsla])
-        s.pct_change()
-        normal_sum = s.pct_change()
-        normal_sum.at[1]
-        dvTSLA = str(round((normal_sum.at[1] * 100), 2))
-        #calculating % error
-        ntsla2 = float(TSLA2)
-        e = (ntsla2 / ntsla) * 100
-        eTSLA = '%.2f' % e
-        TSLA = 'Predicted price of Tesla stock in 7 days $%s (Δ%s%%) %s%% error' % (TSLA1, dvTSLA, eTSLA)
-        chat_id = update.message.chat_id
-        bot.send_message(chat_id, TSLA)
-
-    else:
-        text = 'Yahoo Finance is currently missing data for TSLA. Could not run prediction model at this time.'
-        chat_id = update.message.chat_id
-        bot.send_message(chat_id, text)
-
-
-def RUS2000(update, context):
-    context.bot.sendChatAction(chat_id=update.message.chat_id, action=telegram.ChatAction.TYPING)
-    photo = open('/home/ubuntu/Desktop/TelegramBot/charts/RUSforcast.jpeg', 'rb')
-    caption = "USD/RUB exchange rate prediction chart for {}".format(today)
-    chat_id = update.message.chat_id
-    context.bot.send_photo(chat_id, photo, caption)
-
-    photo = open('/home/ubuntu/Desktop/TelegramBot/charts/RUStrend.jpeg', 'rb')
-    caption = "Russel 2000 performance {}".format(today)
-    chat_id = update.message.chat_id
-    context.bot.send_photo(chat_id, photo, caption)
-
-    RUS1 = open('/home/ubuntu/Desktop/TelegramBot/predictions/futurepriceRUS.txt', 'r').read()
-    RUS2 = open('/home/ubuntu/Desktop/TelegramBot/predictions/meanabsoluteerrorRUS.txt', 'r').read()
-
-    if type(RUS1) or type(RUS2) == int or float:
-        #calculating Δ%
-        nrus = float(RUS1)
-        s = pd.Series([si.get_live_price("^RUT"), nrus])
-        s.pct_change()
-        normal_sum = s.pct_change()
-        normal_sum.at[1]
-        dvRUS = str(round((normal_sum.at[1] * 100), 2))
-        #calculating % error
-        nrus2 = float(RUS2)
-        e = (nrus2 / nrus) * 100
-        eRUS = '%.2f' % e
-        RUS = 'Predicted value of the Russel 2000 in 7 days %s points (Δ%s%%) %s%% error' % (RUS1, dvRUS, eRUS)
-        chat_id = update.message.chat_id
-        bot.send_message(chat_id, RUS)
-
-    else:
-        text = 'Yahoo Finance is currently missing data for Russel 2000. Could not run prediction model at this time.'
-        chat_id = update.message.chat_id
-        bot.send_message(chat_id, text)
 
 
 def SP500(update, context):
     context.bot.sendChatAction(chat_id=update.message.chat_id, action=telegram.ChatAction.TYPING)
     photo = open('/home/ubuntu/Desktop/TelegramBot/charts/SP500forcast.jpeg', 'rb')
-    caption = "SP500 prediction chart for {}".format(today)
+    caption = "SP500 forcast chart for {}".format(today)
     chat_id = update.message.chat_id
     context.bot.send_photo(chat_id, photo, caption)
 
@@ -638,36 +572,49 @@ def SP500(update, context):
     chat_id = update.message.chat_id
     context.bot.send_photo(chat_id, photo, caption)
 
-    SP1 = open('/home/ubuntu/Desktop/TelegramBot/predictions/futurepriceSP500.txt', 'r').read()
-    SP2 = open('/home/ubuntu/Desktop/TelegramBot/predictions/meanabsoluteerrorSP500.txt', 'r').read()
+    photo = open('/home/ubuntu/Desktop/TelegramBot/charts/SP500forcastwithlines.jpeg', 'rb')
+    caption = "SP500 performance {}".format(today)
+    chat_id = update.message.chat_id
+    context.bot.send_photo(chat_id, photo, caption)
 
-    if type(SP1) or type(SP2) == int or float:
-                #calculating Δ%
-        nsp = float(SP1)
-        s = pd.Series([si.get_live_price("^GSPC"), nsp])
+    photo = open('/home/ubuntu/Desktop/TelegramBot/charts/SP500ml.jpeg', 'rb')
+    caption = "Actual vs Predicted price of ML model {}".format(today)
+    chat_id = update.message.chat_id
+    context.bot.send_photo(chat_id, photo, caption)
+
+    SP5001 = open('/home/ubuntu/Desktop/TelegramBot/predictions/futurepriceSP500.txt', 'r').read()
+    SP5002 = open('/home/ubuntu/Desktop/TelegramBot/predictions/meanabsoluteerrorSP500.txt', 'r').read()
+    SP5003 = open('/home/ubuntu/Desktop/TelegramBot/predictions/buyprofitSP500.txt', 'r').read()
+    SP5004 = open('/home/ubuntu/Desktop/TelegramBot/predictions/sellprofitSP500.txt', 'r').read()
+    SP5005 = open('/home/ubuntu/Desktop/TelegramBot/predictions/totalprofitSP500.txt', 'r').read()
+    SP5006 = open('/home/ubuntu/Desktop/TelegramBot/predictions/profitpertradeSP500.txt', 'r').read()
+
+
+    if type(SP5001) or type(SP5002) == int or float:
+        #calculating Δ%
+        nsp500 = float(SP5001)
+        s = pd.Series([si.get_live_price("SPY"), nsp500])
         s.pct_change()
         normal_sum = s.pct_change()
         normal_sum.at[1]
-        dvSP = str(round((normal_sum.at[1] * 100), 2))
+        dvSP500 = str(round((normal_sum.at[1] * 100), 2))
         #calculating % error
-        nsp2 = float(SP2)
-        e = (nsp2 / nsp) * 100
-        eSP = '%.2f' % e
-        SP = 'Predicted value of the S&P500 in 7 days %s points (Δ%s%%) %s%% error' % (SP1, dvSP, eSP)
+        nsp5002 = float(SP5002)
+        e = (nsp5002 / nsp500) * 100
+        eSP500 = '%.2f' % e
+        SP500 = 'Predicted price of SP500 in 7 days $%s   (Δ%s%%)\n Model Error: %s%% \n Total buy profit: %s\n Total sell profit: %s \n Total profit: %s \n Profit per trade: %s \n' % (SP5001, dvSP500, eSP500, SP5003, SP5004, SP5005, SP5006)
         chat_id = update.message.chat_id
-        bot.send_message(chat_id, SP)
-
+        bot.send_message(chat_id, SP500)
     else:
-        text = 'Yahoo Finance is currently missing data for SP500. Could not run prediction model at this time.'
+        text = 'Yahoo Finance is missing data for this asset. Could not run prediction model at this time.'
         chat_id = update.message.chat_id
         bot.send_message(chat_id, text)
 
 
-'''
-
 def GOLD(update, context):
+    context.bot.sendChatAction(chat_id=update.message.chat_id, action=telegram.ChatAction.TYPING)
     photo = open('/home/ubuntu/Desktop/TelegramBot/charts/GOLDforcast.jpeg', 'rb')
-    caption = "Gold price prediction chart for {}".format(today)
+    caption = "Gold forcast chart for {}".format(today)
     chat_id = update.message.chat_id
     context.bot.send_photo(chat_id, photo, caption)
 
@@ -676,30 +623,96 @@ def GOLD(update, context):
     chat_id = update.message.chat_id
     context.bot.send_photo(chat_id, photo, caption)
 
+    photo = open('/home/ubuntu/Desktop/TelegramBot/charts/GOLDforcastwithlines.jpeg', 'rb')
+    caption = "Gold performance {}".format(today)
+    chat_id = update.message.chat_id
+    context.bot.send_photo(chat_id, photo, caption)
+
+    photo = open('/home/ubuntu/Desktop/TelegramBot/charts/GOLDml.jpeg', 'rb')
+    caption = "Actual vs Predicted price of ML model {}".format(today)
+    chat_id = update.message.chat_id
+    context.bot.send_photo(chat_id, photo, caption)
+
     GOLD1 = open('/home/ubuntu/Desktop/TelegramBot/predictions/futurepriceGOLD.txt', 'r').read()
     GOLD2 = open('/home/ubuntu/Desktop/TelegramBot/predictions/meanabsoluteerrorGOLD.txt', 'r').read()
-    text = 'Predicted price of Gold in 7 days $%s mean absolute error %s' % (GOLD1, GOLD2)
-    chat_id = update.message.chat_id
-    bot.send_message(chat_id, text)
+    GOLD3 = open('/home/ubuntu/Desktop/TelegramBot/predictions/buyprofitGOLD.txt', 'r').read()
+    GOLD4 = open('/home/ubuntu/Desktop/TelegramBot/predictions/sellprofitGOLD.txt', 'r').read()
+    GOLD5 = open('/home/ubuntu/Desktop/TelegramBot/predictions/totalprofitGOLD.txt', 'r').read()
+    GOLD6 = open('/home/ubuntu/Desktop/TelegramBot/predictions/profitpertradeGOLD.txt', 'r').read()
+
+
+    if type(GOLD1) or type(GOLD2) == int or float:
+        #calculating Δ%
+        ngold = float(GOLD1)
+        s = pd.Series([si.get_live_price("GC=F"), ngold])
+        s.pct_change()
+        normal_sum = s.pct_change()
+        normal_sum.at[1]
+        dvGOLD = str(round((normal_sum.at[1] * 100), 2))
+        #calculating % error
+        ngold2 = float(GOLD2)
+        e = (ngold2 / ngold) * 100
+        eGOLD = '%.2f' % e
+        GOLD = 'Predicted price of Gold in 7 days $%s   (Δ%s%%)\n Model Error: %s%% \n Total buy profit: %s\n Total sell profit: %s \n Total profit: %s \n Profit per trade: %s \n' % (GOLD1, dvGOLD, eGOLD, GOLD3, GOLD4, GOLD5, GOLD6)
+        chat_id = update.message.chat_id
+        bot.send_message(chat_id, GOLD)
+    else:
+        text = 'Yahoo Finance is missing data for this asset. Could not run prediction model at this time.'
+        chat_id = update.message.chat_id
+        bot.send_message(chat_id, text)
+
+
 
 def OIL(update, context):
+    context.bot.sendChatAction(chat_id=update.message.chat_id, action=telegram.ChatAction.TYPING)
     photo = open('/home/ubuntu/Desktop/TelegramBot/charts/OILforcast.jpeg', 'rb')
-    caption = "Crude oil price prediction chart for {}".format(today)
+    caption = "Oil forcast chart for {}".format(today)
     chat_id = update.message.chat_id
     context.bot.send_photo(chat_id, photo, caption)
 
     photo = open('/home/ubuntu/Desktop/TelegramBot/charts/OILtrend.jpeg', 'rb')
-    caption = "Crude oil performance {}".format(today)
+    caption = "Oil performance {}".format(today)
+    chat_id = update.message.chat_id
+    context.bot.send_photo(chat_id, photo, caption)
+
+    photo = open('/home/ubuntu/Desktop/TelegramBot/charts/OILforcastwithlines.jpeg', 'rb')
+    caption = "Oil performance {}".format(today)
+    chat_id = update.message.chat_id
+    context.bot.send_photo(chat_id, photo, caption)
+
+    photo = open('/home/ubuntu/Desktop/TelegramBot/charts/OILml.jpeg', 'rb')
+    caption = "Actual vs Predicted price of ML model {}".format(today)
     chat_id = update.message.chat_id
     context.bot.send_photo(chat_id, photo, caption)
 
     OIL1 = open('/home/ubuntu/Desktop/TelegramBot/predictions/futurepriceOIL.txt', 'r').read()
     OIL2 = open('/home/ubuntu/Desktop/TelegramBot/predictions/meanabsoluteerrorOIL.txt', 'r').read()
-    text = 'Predicted price of crude oil in 7 days $%s mean absolute error %s' % (OIL1, OIL2)
-    chat_id = update.message.chat_id
-    bot.send_message(chat_id, text)
+    OIL3 = open('/home/ubuntu/Desktop/TelegramBot/predictions/buyprofitOIL.txt', 'r').read()
+    OIL4 = open('/home/ubuntu/Desktop/TelegramBot/predictions/sellprofitOIL.txt', 'r').read()
+    OIL5 = open('/home/ubuntu/Desktop/TelegramBot/predictions/totalprofitOIL.txt', 'r').read()
+    OIL6 = open('/home/ubuntu/Desktop/TelegramBot/predictions/profitpertradeOIL.txt', 'r').read()
 
-'''
+
+    if type(OIL1) or type(OIL2) == int or float:
+        #calculating Δ%
+        noil = float(OIL1)
+        s = pd.Series([si.get_live_price("CL=F"), noil])
+        s.pct_change()
+        normal_sum = s.pct_change()
+        normal_sum.at[1]
+        dvOIL = str(round((normal_sum.at[1] * 100), 2))
+        #calculating % error
+        noil2 = float(OIL2)
+        e = (noil2 / noil) * 100
+        eOIL = '%.2f' % e
+        OIL = 'Predicted price of Oil in 7 days $%s   (Δ%s%%)\n Model Error: %s%% \n Total buy profit: %s\n Total sell profit: %s \n Total profit: %s \n Profit per trade: %s \n' % (OIL1, dvOIL, eOIL, OIL3, OIL4, OIL5, OIL6)
+        chat_id = update.message.chat_id
+        bot.send_message(chat_id, OIL)
+    else:
+        text = 'Yahoo Finance is missing data for this asset. Could not run prediction model at this time.'
+        chat_id = update.message.chat_id
+        bot.send_message(chat_id, text)
+
 
 
 def info(update: Update, context: CallbackContext) -> None:
@@ -748,16 +761,6 @@ def moreinfo(update: Update, context: CallbackContext) -> None:
                               ' If you like this bot, please consider sharing it!')
 
 
-### Send updates every x amount of time
-
-def unknown(bot, update):
-    bot.sendMessage(chat_id=update.message.chat_id, text="Sorry, I didn't understand that command.")
-
-
-
-
-
-
 def button(update: Update, _: CallbackContext) -> None:
     query = update.callback_query
 
@@ -783,22 +786,18 @@ def main():
     dispatcher.add_handler(CommandHandler("help", start))
     dispatcher.add_handler(CommandHandler("list", list))
     dispatcher.add_handler(CommandHandler("update", update))
+    dispatcher.add_handler(CommandHandler("matricies", matricies))
+    dispatcher.add_handler(CommandHandler("yieldcurve", yieldcurve))
     dispatcher.add_handler(CommandHandler("info", info))
     dispatcher.add_handler(CommandHandler("moreinfo", moreinfo))
     dispatcher.add_handler(CommandHandler("BTC", BTC))
     dispatcher.add_handler(CommandHandler("ETH", ETH))
-    dispatcher.add_handler(CommandHandler("XMR", XMR))
-    dispatcher.add_handler(CommandHandler("PYPL", PYPL))
-    dispatcher.add_handler(CommandHandler("TSLA", TSLA))
+    dispatcher.add_handler(CommandHandler("UNI", UNI))
     dispatcher.add_handler(CommandHandler("EUR", EUR))
     dispatcher.add_handler(CommandHandler("RUB", RUB))
+    dispatcher.add_handler(CommandHandler("GOLD", GOLD))
+    dispatcher.add_handler(CommandHandler("OIL", OIL))
     dispatcher.add_handler(CommandHandler("SP500", SP500))
-    dispatcher.add_handler(CommandHandler("RUS2000", RUS2000))
-
-
-
-    # dispatcher.add_handler(CommandHandler("GOLD", GOLD))
-    # dispatcher.add_handler(CommandHandler("OIL", OIL))
 
     # Start the Bot
     updater.start_polling()
