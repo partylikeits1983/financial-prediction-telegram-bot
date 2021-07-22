@@ -7,7 +7,7 @@ end = date.today()
 d = datetime.timedelta(days=730)
 start = end - d
 
-ticker = "SPY"
+ticker = "ES=F"
 s = si.get_data(ticker, start, end)
 s['Date'] = s.index
 s.rename({'close': 'Close'}, axis=1, inplace=True)
