@@ -181,7 +181,7 @@ OPTIMIZER = "adam"
 BATCH_SIZE = 64
 EPOCHS = 3
 # Amazon stock market
-ticker = "SPX"
+ticker = "ES=F"
 ticker_data_filename = os.path.join("/home/ubuntu/Desktop/TelegramBot/tensorflow/tensorflowdata/dataSP500", f"{ticker}_{date_now}.csv")
 # model name to save, making it as unique as possible based on parameters
 model_name = f"{date_now}_{ticker}-{shuffle_str}-{scale_str}-{split_by_date_str}-\
