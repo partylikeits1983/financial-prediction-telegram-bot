@@ -195,7 +195,7 @@ def update(update, context):
     if type(SP1) or type(SP2) == int or float:
         #calculating Δ%
         nsp = float(SP1)
-        s = pd.Series([si.get_live_price("^GSPC"), nsp])
+        s = pd.Series([si.get_live_price("ES=F"), nsp])
         s.pct_change()
         normal_sum = s.pct_change()
         normal_sum.at[1]
@@ -593,7 +593,7 @@ def SP500(update, context):
     if type(SP5001) or type(SP5002) == int or float:
         #calculating Δ%
         nsp500 = float(SP5001)
-        s = pd.Series([si.get_live_price("SPY"), nsp500])
+        s = pd.Series([si.get_live_price("ES=F"), nsp500])
         s.pct_change()
         normal_sum = s.pct_change()
         normal_sum.at[1]
